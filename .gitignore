@@ -1,0 +1,9 @@
+# pacotes gerados
+*.zip
+dist/
+
+# sistema
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+*Zone.Identifier
