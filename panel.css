@@ -1,10 +1,18 @@
 /* Painel flutuante injetado na pagina do SUAP. Prefixo spx- para nao colidir. */
+:root {
+  --spx-green: #1e7e34;
+  --spx-green-dark: #17672a;
+  --spx-green-soft: #e6f4ea;
+  --spx-progress: #137333;
+  --spx-progress-track: #d6ead9;
+}
+
 #spx-fab {
   position: fixed;
   right: 20px;
   bottom: 20px;
   z-index: 2147483000;
-  background: #1351b4;
+  background: var(--spx-green);
   color: #fff;
   border: none;
   border-radius: 24px;
@@ -13,35 +21,37 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   cursor: pointer;
 }
-#spx-fab:hover { background: #0c3d8c; }
+#spx-fab:hover { background: var(--spx-green-dark); }
 
 #spx-panel {
   position: fixed;
   right: 20px;
   bottom: 74px;
   z-index: 2147483000;
-  width: 380px;
-  max-height: 70vh;
+  width: 360px;
+  max-height: 72vh;
   display: none;
   flex-direction: column;
   background: #fff;
   color: #1b1b1b;
   border: 1px solid #d0d0d0;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
   font: 13px/1.4 -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   overflow: hidden;
 }
 #spx-panel.spx-open { display: flex; }
 
+/* Cabecalho, barra de selecao, rodape e status: fixos (nao rolam) */
 #spx-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
-  background: #1351b4;
+  padding: 11px 14px;
+  background: var(--spx-green);
   color: #fff;
   font-weight: 600;
+  flex: none;
 }
 #spx-header button {
   background: transparent;
@@ -56,59 +66,115 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-bottom: 1px solid #eee;
-  flex-wrap: wrap;
+  flex: none;
 }
-#spx-toolbar label { display: flex; align-items: center; gap: 4px; }
-#spx-count { margin-left: auto; color: #555; }
+#spx-toolbar label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+#spx-count { margin-left: auto; color: #666; font-size: 12px; }
 
+/* Somente a lista rola */
 #spx-list {
-  overflow-y: auto;
-  padding: 4px 12px;
   flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2px 14px;
 }
 .spx-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 0;
+  padding: 7px 0;
   border-bottom: 1px solid #f2f2f2;
 }
-.spx-row .spx-name { flex: 1 1 auto; }
-.spx-row .spx-status { font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+.spx-row .spx-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.spx-row .spx-status { font-size: 11px; padding: 1px 7px; border-radius: 10px; }
 .spx-status.OK { background: #e6f4ea; color: #137333; }
 .spx-status.TIMEOUT { background: #fef7e0; color: #b06000; }
 .spx-status.ERRO { background: #fce8e6; color: #c5221f; }
 
+/* Faixa de status: fundo proprio, acima do rodape */
+#spx-status {
+  flex: none;
+  padding: 10px 14px;
+  background: #eff7f1;
+  border-top: 1px solid #e2eee6;
+  display: none;
+}
+#spx-status.spx-show { display: block; }
+#spx-status-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+#spx-status-label { font-size: 12px; font-weight: 600; color: var(--spx-green); }
+#spx-status-label.spx-done { color: var(--spx-progress); }
+#spx-status-count { font-size: 12px; color: #666; }
+#spx-progress {
+  height: 6px;
+  background: var(--spx-progress-track);
+  border-radius: 4px;
+  overflow: hidden;
+}
+#spx-progress > div {
+  height: 100%;
+  width: 0;
+  background: var(--spx-progress);
+  transition: width 0.2s;
+}
+#spx-folder {
+  margin-top: 7px;
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: none;
+}
+#spx-folder.spx-show { display: block; }
+
+/* Mensagens curtas (buscando, nenhuma portaria, validacao) */
+#spx-msg {
+  flex: none;
+  padding: 8px 14px;
+  color: #666;
+  font-size: 12px;
+  border-top: 1px solid #eee;
+  min-height: 16px;
+}
+#spx-msg:empty { display: none; }
+
+/* Rodape: botoes fixos, sem sobreposicao */
 #spx-footer {
-  padding: 10px 12px;
+  flex: none;
+  padding: 10px 14px;
   border-top: 1px solid #eee;
   display: flex;
   gap: 8px;
-  align-items: center;
 }
 .spx-btn {
-  background: #1351b4;
+  flex: 1 1 auto;
+  background: var(--spx-green);
   color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: 8px;
+  padding: 9px 12px;
   font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
 }
-.spx-btn.secondary { background: #e8eefc; color: #1351b4; }
-.spx-btn:disabled { opacity: 0.5; cursor: default; }
-
-#spx-progress {
-  height: 6px;
-  background: #eee;
-  border-radius: 4px;
-  overflow: hidden;
-  flex: 1 1 auto;
-  display: none;
+.spx-btn:hover { background: var(--spx-green-dark); }
+.spx-btn.secondary {
+  flex: 0 0 auto;
+  background: var(--spx-green-soft);
+  color: var(--spx-green-dark);
 }
-#spx-progress.spx-show { display: block; }
-#spx-progress > div { height: 100%; width: 0; background: #137333; transition: width 0.2s; }
-
-#spx-msg { padding: 6px 12px; color: #555; min-height: 18px; }
+.spx-btn.secondary:hover { background: #d5ecdc; }
+.spx-btn:disabled { opacity: 0.5; cursor: default; }

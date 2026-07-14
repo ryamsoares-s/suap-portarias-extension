@@ -195,11 +195,18 @@
         <span id="spx-count">0 selecionadas</span>
       </div>
       <div id="spx-list"></div>
+      <div id="spx-status">
+        <div id="spx-status-line">
+          <span id="spx-status-label"></span>
+          <span id="spx-status-count"></span>
+        </div>
+        <div id="spx-progress"><div></div></div>
+        <div id="spx-folder"></div>
+      </div>
       <div id="spx-msg"></div>
       <div id="spx-footer">
         <button class="spx-btn" id="spx-download">Baixar selecionadas</button>
-        <div id="spx-progress"><div></div></div>
-        <button class="spx-btn secondary" id="spx-csv" style="display:none">Salvar log CSV</button>
+        <button class="spx-btn secondary" id="spx-csv" style="display:none">Log CSV</button>
       </div>`;
 
     document.body.appendChild(fab);
@@ -229,6 +236,28 @@
   function setMsg(t) {
     const m = document.getElementById("spx-msg");
     if (m) m.textContent = t || "";
+  }
+
+  function showStatus() {
+    document.getElementById("spx-status").classList.add("spx-show");
+  }
+  function setStatusLabel(text, done) {
+    const l = document.getElementById("spx-status-label");
+    l.textContent = text;
+    l.classList.toggle("spx-done", !!done);
+  }
+  function setStatusCount(text) {
+    document.getElementById("spx-status-count").textContent = text || "";
+  }
+  function setProgress(frac) {
+    document.querySelector("#spx-progress > div").style.width =
+      Math.round(frac * 100) + "%";
+  }
+  function setFolder(relPath) {
+    const f = document.getElementById("spx-folder");
+    f.textContent = "Downloads › " + relPath.replace(/\//g, " › ");
+    f.title = "Downloads/" + relPath;
+    f.classList.add("spx-show");
   }
 
   function updateCount() {
@@ -296,14 +325,16 @@
     const servidor = getServidorNome();
     const btn = document.getElementById("spx-download");
     btn.disabled = true;
-    const prog = document.getElementById("spx-progress");
-    prog.classList.add("spx-show");
-    const bar = prog.firstElementChild;
+    setMsg("");
+    showStatus();
+    setStatusLabel("Baixando…", false);
+    setProgress(0);
+    document.getElementById("spx-folder").classList.remove("spx-show");
     let done = 0;
 
     const queue = selected.map((i) => state.items[i]);
-    const indexOfItem = new Map(queue.map((it, k) => [it, selected[k]]));
 
+    setStatusCount(`0 de ${queue.length}`);
     await runQueue(queue, servidor, (k, status, detail) => {
       const globalIdx = selected[k];
       setStatus(globalIdx, status);
@@ -318,12 +349,18 @@
         detalhe: detail,
       });
       done++;
-      bar.style.width = Math.round((done / queue.length) * 100) + "%";
-      setMsg(`Baixando... ${done}/${queue.length}`);
+      setProgress(done / queue.length);
+      setStatusCount(`${done} de ${queue.length}`);
     });
 
     const ok = state.results.filter((r) => r.status === "OK").length;
-    setMsg(`Concluido: ${ok}/${queue.length} baixadas. Pasta: Downloads/Portarias SUAP/${servidor}`);
+    const falhas = queue.length - ok;
+    setStatusLabel(
+      falhas ? `Concluído — ${ok} de ${queue.length} (${falhas} com falha)` : `Concluído — ${ok} de ${queue.length} baixadas`,
+      true
+    );
+    setStatusCount("");
+    setFolder(`Portarias SUAP/${servidor}`);
     document.getElementById("spx-csv").style.display = "";
     btn.disabled = false;
     state.running = false;
